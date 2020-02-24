@@ -1,6 +1,5 @@
 #pragma once
 #include <iostream>
-#include <vector>
 
 class Board{
     int *data;
@@ -19,7 +18,8 @@ class Board{
 public:
     Board(){
         data = new int[9];
-        std::fill(data, data+sizeof(data)+1, EMPTY);
+        for(int i = 0; i < 9; ++i)
+            data[i] = EMPTY;
     }
 
     Board(const Board& b){
@@ -46,7 +46,7 @@ public:
         }
         if (iter.isGameEnded() != UNDEFINED)
             return iter.evaluate(AI);
-        int max_value = -INT32_MAX;
+        int max_value = INT32_MIN;
         int best_move = -1;
         for(int i = 0; i < 9; ++i) {
             if (iter.data[i] == EMPTY) {
