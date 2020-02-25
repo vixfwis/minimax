@@ -39,49 +39,60 @@ public:
         UNDEFINED
     };
 
-    static int maxi(const Board& b, int& index, int depth = 0) {
+    int findMove(){
+        int best_value = -1;
+        bool first = true;
+        int best_move = -1;
+        for(int i = 0; i < 9; ++i) {
+            if (data[i] == EMPTY) {
+                int value = maxi(*this, i);
+                if (first || value < best_value) {
+                    best_value = value;
+                    best_move = i;
+                    first = false;
+                }
+            }
+        }
+        return best_move;
+    }
+
+    static int maxi(const Board& b, int index, int depth = 0) {
         Board iter(b);
         if(index != -1) {
             iter.setValue(index, AI);
         }
         if (iter.isGameEnded() != UNDEFINED)
-            return iter.evaluate(AI);
+            return iter.evaluate()+depth;
         int max_value = INT32_MIN;
         int best_move = -1;
         for(int i = 0; i < 9; ++i) {
             if (iter.data[i] == EMPTY) {
-                int move = i;
-                int value = mini(iter, move, ++depth);
+                int value = mini(iter, i, ++depth);
                 if (value > max_value) {
                     max_value = value;
-                    best_move = move;
                 }
             }
         }
-        index = best_move;
         return max_value;
     }
 
-    static int mini(const Board& b, int& index, int depth = 0) {
+    static int mini(const Board& b, int index, int depth = 0) {
         Board iter(b);
         if(index != -1) {
             iter.setValue(index, PLAYER);
         }
         if (iter.isGameEnded() != UNDEFINED)
-            return -iter.evaluate(PLAYER);
+            return iter.evaluate()-depth;
         int min_value = INT32_MAX;
         int best_move = -1;
         for(int i = 0; i < 9; ++i) {
             if (iter.data[i] == EMPTY) {
-                int move = i;
-                int value = maxi(iter, move, ++depth);
+                int value = maxi(iter, i, ++depth);
                 if (value < min_value) {
                     min_value = value;
-                    best_move = move;
                 }
             }
         }
-        index = best_move;
         return min_value;
     }
 
@@ -138,20 +149,25 @@ public:
         return EMPTY; // draw
     }
 
-    int evaluate(Status player) const{
-        int score = 0;
+    int evaluate() {
+        int score[] = {0, 0};
 
-        // stage 1: 2 for every double X with empty 3rd slot
         for(int i = 0; i < linesCount; ++i)
-            if(contains(lines[i][0], lines[i][1], lines[i][2], player, player, EMPTY))
-                score += 2;
-
-        // stage 2: 10 for win condition
+            if(contains(lines[i][0], lines[i][1], lines[i][2], PLAYER, PLAYER, EMPTY))
+                score[0] += 10;
         for(int i = 0; i < linesCount; ++i)
-            if(player == isUniform(lines[i][0], lines[i][1], lines[i][2]))
-                score += 10;
+            if(contains(lines[i][0], lines[i][1], lines[i][2], AI, AI, EMPTY))
+                score[1] += 10;
 
-        return score;
+
+        for(int i = 0; i < linesCount; ++i)
+            if(PLAYER == isUniform(lines[i][0], lines[i][1], lines[i][2]))
+                score[0] += 100;
+        for(int i = 0; i < linesCount; ++i)
+            if(AI == isUniform(lines[i][0], lines[i][1], lines[i][2]))
+                score[1] += 100;
+
+        return score[0] - score[1];
     }
 
     void setValue(int index, Status value){

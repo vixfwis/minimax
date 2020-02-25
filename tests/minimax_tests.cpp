@@ -54,15 +54,13 @@ TEST_CASE("Board class tests", "[minimax]"){
         REQUIRE(b.contains(0, 1, 2, Board::EMPTY, Board::PLAYER, Board::PLAYER));
     }
 
-    SECTION("evaluate gives score to passed player based on board state"){
-        REQUIRE(b.evaluate(Board::PLAYER) == 2);
-        REQUIRE(b.evaluate(Board::AI) == 2);
+    SECTION("evaluate return score based on board state"){
+        REQUIRE(b.evaluate() == 0);
         // remove one double from player with AI win condition
         b.setValue(2, Board::AI);
-        REQUIRE(b.evaluate(Board::PLAYER) == 0);
-        REQUIRE(b.evaluate(Board::AI) == 10);
+        REQUIRE(b.evaluate() == -100);
         // give player win condition
         b.setValue(2, Board::PLAYER);
-        REQUIRE(b.evaluate(Board::PLAYER) == 10);
+        REQUIRE(b.evaluate() == 100);
     }
 }

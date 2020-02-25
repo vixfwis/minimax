@@ -2,6 +2,8 @@
 #include "board.hpp"
 using namespace std;
 
+constexpr int numpad[] = {-1,6,7,8,3,4,5,0,1,2};
+
 int main() {
     Board b;
     int pmove, amove;
@@ -9,21 +11,20 @@ int main() {
     while(true){
 
         cout << endl << b << endl;
-        cout << "Your turn [1-9]: ";
+        cout << "Your turn [numpad]: ";
         while(true){
             cin >> pmove;
-            if(b.getValue(pmove-1) != Board::EMPTY){
+            if(b.getValue(numpad[pmove]) != Board::EMPTY){
                 cout << "Cell already occupied! Try again: ";
             }else{
                 break;
             }
         }
-        b.setValue(pmove-1, Board::PLAYER);
+        b.setValue(numpad[pmove], Board::PLAYER);
         if((result = b.isGameEnded()) != Board::UNDEFINED)
             break;
 
-        amove = -1;
-        Board::mini(b, amove);
+        amove = b.findMove();
         if(amove != -1)
             b.setValue(amove, Board::AI);
         if((result = b.isGameEnded()) != Board::UNDEFINED)
@@ -40,5 +41,6 @@ int main() {
         default:
             cout << "Draw!" << endl;
     }
+
     return 0;
 }
